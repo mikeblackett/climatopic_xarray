@@ -1,0 +1,59 @@
+[project]
+name = "climatopic-xarray"
+version = "0.0.0"
+description = "xarray tools for climatopic projects"
+authors = [
+    { name = "Mike Blackett", email = "27811528+mikeblackett@users.noreply.github.com" },
+]
+dependencies = [
+    "xarray>=2024.9.0",
+    "pandas>=2.2.3",
+    "numpy>=2.1.2",
+    "cf-xarray>=0.9.5",
+    "pooch>=1.8.2",
+    "ipykernel>=6.29.5",
+    "zarr>=3.0.1",
+    "flox>=0.9.15",
+    "bottleneck>=1.4.2",
+    "packaging>=24.2",
+]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = { text = "MIT" }
+
+[tool.pdm]
+distribution = true
+
+[tool.ruff]
+line-length = 79
+indent-width = 4
+extend-include = ["*.ipynb"]
+
+[tool.ruff.format]
+docstring-code-format = false
+docstring-code-line-length = "dynamic"
+indent-style = "space"
+line-ending = "auto"
+quote-style = "single"
+skip-magic-trailing-comma = false
+
+[tool.ruff.lint]
+preview = true
+
+[tool.pyright]
+reportUnknownMemberType = false
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "matplotlib>=3.9.2",
+    "notebook>=7.3.2",
+    "coverage>=7.6.10",
+    "sphinx>=8.1.3",
+    "docutils>=0.21.2",
+    "scipy>=1.15.2",
+    "netcdf4>=1.7.2",
+    "dask[diagnostics]>=2025.2.0",
+    "pytest>=8.3.5",
+    "hypothesis>=6.128.2",
+]

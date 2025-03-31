@@ -227,7 +227,7 @@ def infer_bounds(
         raise KeyError(
             'Bounds are only supported for indexed dimension coordinates.'
         ) from error
-    label = label or 'left'
+
     interval = infer_interval(index=index, closed=closed, label=label)
     data = np.stack(arrays=(interval.left, interval.right), axis=1)
     if data.shape != obj.shape + (2,):

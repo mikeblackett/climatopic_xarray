@@ -146,14 +146,37 @@ class CFBoundsAccessor(Mapping[str, DataArray]):
         return dataset.assign_coords(coords)
 
     def to_index(self, key: str) -> pd.IntervalIndex:
-        """Return the bounds as a pandas `IntervalIndex`."""
+        """
+        Return the bounds as a pandas `IntervalIndex`.
+
+        The closed side of the interval is determined by the `closed` attribute
+        of the bounds variable. If the closed side is not specified, it defaults
+        to 'left'. If the closed side attribute is not a valid
+        `pandas.core.generic.IntervalClosedType`, a ValueError is raised.
+
+        Parameters
+        ----------
+        key : str
+            The name or CF axis key of the bounds coordinate to convert to a
+            `pandas.IntervalIndex`.
+        Returns
+        -------
+        pd.IntervalIndex
+            The bounds as a `pandas.IntervalIndex`.
+        """
         bounds = self[key]
         return pd.IntervalIndex.from_arrays(
             *bounds.values.transpose(), closed='left'
         )
 
     def to_midpoint(self, key: str) -> xr.DataArray:
-        """Return a DataArray representing the midpoints of the bounds."""
+        """
+        Return a DataArray representing the midpoints of the bounds.
+
+        The midpoints are calculated by converting the bounds to a pandas
+        `IntervalIndex`, and then taking the `IntervalIndex.mid` attribute. If
+        the bounds are datetime-like, the midpoints are normalized to midnight.
+        """
         interval = self.to_index(key)
         midpoint = interval.mid
         if isinstance(midpoint, pd.DatetimeIndex):
@@ -201,6 +224,10 @@ def infer_bounds(
         The dimension to infer bounds for.
     obj : DataArray
         The data array to infer bounds from.
+    closed : Literal['left', 'right'], optional
+        The closed side of the interval.
+    label : Literal['left', 'middle', 'right'], optional
+        Which bin edge or midpoint the index labels.
 
     Returns
     -------

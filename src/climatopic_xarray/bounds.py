@@ -140,9 +140,7 @@ class CFBoundsAccessor(Mapping[str, DataArray]):
         dims = {get_dim(obj=dataset, key=key) for key in keys}
         coords = {}
         for dim in dims:
-            bounds = infer_bounds(
-                dim=dim, obj=dataset[dim], closed=closed, label=label
-            )
+            bounds = infer_bounds(obj=dataset[dim], closed=closed, label=label)
             coords.update({bounds.name: bounds})
         return dataset.assign_coords(coords)
 
@@ -217,18 +215,16 @@ class CFBoundsDataArrayAccessor:
 
 
 def infer_bounds(
-    dim: str,
     obj: DataArray,
+    *,
     closed: Literal['left', 'right'] | None = None,
     label: Literal['left', 'middle', 'right'] | None = None,
 ) -> DataArray:
     """
-    Infer bounds for an indexed dimension coordinate.
+    Infer bounds for an 1D coordinate.
 
     Parameters
     ----------
-    dim : str
-        The dimension to infer bounds for.
     obj : DataArray
         The data array to infer bounds from.
     closed : Literal['left', 'right'], optional
@@ -247,22 +243,14 @@ def infer_bounds(
         If the dimension is not indexed.
     ValueError
         If the data array is not 1D.
-    KeyError
-        If the dimension is not found in the data array.
-
     """
     if obj.ndim != 1:
         raise ValueError(
             'Bounds are currently only supported for 1D coordinates.'
         )
-    try:
-        index = obj.get_index(dim)
-    except KeyError as error:
-        raise KeyError(
-            'Bounds are only supported for indexed dimension coordinates.'
-        ) from error
-
-    interval = infer_interval(index=index, closed=closed, label=label)
+    dim = obj.dims[0]
+    index = obj.to_index()
+    interval = _infer_interval(index=index, closed=closed, label=label)
     data = np.stack(arrays=(interval.left, interval.right), axis=1)
     if data.shape != obj.shape + (2,):
         raise ValueError(

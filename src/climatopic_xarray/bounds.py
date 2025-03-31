@@ -269,7 +269,7 @@ def infer_bounds(
     )
 
 
-def infer_interval(
+def _infer_interval(
     index: pd.Index,
     *,
     closed: Literal['left', 'right'] | None = None,

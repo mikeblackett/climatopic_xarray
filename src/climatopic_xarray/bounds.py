@@ -85,7 +85,7 @@ class CFBoundsAccessor(Mapping[str, DataArray]):
     @property
     def dims(self) -> set[str]:
         """Set of dimension names for which bounds are available."""
-        return {key for key in self._obj.cf.bounds if key not in self.axes}
+        return {key for key in self._obj.cf.bounds if key in self._obj.dims}
 
     def __iter__(self) -> Iterator[str]:
         for k in self._obj.cf.bounds:

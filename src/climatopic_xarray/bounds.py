@@ -23,7 +23,7 @@ from climatopic_xarray.exceptions import (
     NotYetImplementedError,
 )
 from climatopic_xarray.frequencies import datetime_to_interval
-from climatopic_xarray.typing import is_interval_closed_type
+from climatopic_xarray.typing import is_datetime_index, is_interval_closed_type
 from climatopic_xarray.utilities import get_dim
 
 TAxisKey = Literal['T', 'Z', 'Y', 'X']
@@ -271,6 +271,7 @@ def infer_bounds(
         )
     name = f'{dim}_bounds'
     coord = obj.assign_attrs(bounds=name)
+
     return DataArray(
         name=name,
         data=data,
@@ -308,7 +309,7 @@ def infer_interval(
         The interval index representing the bounds.
     """
     # datetime indexes will be inferred from their frequency
-    if isinstance(index, pd.DatetimeIndex):
+    if is_datetime_index(index):
         try:
             interval = datetime_to_interval(
                 index=index, closed=closed, label=label

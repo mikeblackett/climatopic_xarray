@@ -23,6 +23,7 @@ from climatopic_xarray.exceptions import (
     NotYetImplementedError,
 )
 from climatopic_xarray.frequencies import datetime_to_interval
+from climatopic_xarray.typing import is_interval_closed_type
 from climatopic_xarray.utilities import get_dim
 
 TAxisKey = Literal['T', 'Z', 'Y', 'X']
@@ -165,8 +166,14 @@ class CFBoundsAccessor(Mapping[str, DataArray]):
             The bounds as a `pandas.IntervalIndex`.
         """
         bounds = self[key]
-        return pd.IntervalIndex.from_arrays(
-            *bounds.values.transpose(), closed='left'
+        closed = bounds.attrs.get('closed', 'left')
+        if is_interval_closed_type(closed):
+            return pd.IntervalIndex.from_arrays(
+                *bounds.values.transpose(), closed=closed
+            )
+        raise ValueError(
+            f"Invalid closed value: {closed}. Must be 'left' or 'right'; "
+            f'got {closed}'
         )
 
     def to_midpoint(self, key: str) -> xr.DataArray:

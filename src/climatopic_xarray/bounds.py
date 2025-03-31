@@ -52,8 +52,8 @@ class CFBoundsAccessor(Mapping[str, DataArray]):
         Get the bounds for the specified dimension coordinate.
 
         The bounds are returned as a DataArray.
-        The bounds can be referenced by their coordinate name or by their
-        corresponding CF axis key.
+        The bounds can be referenced by their coordinate name, CF standard
+        name, or by their corresponding CF axis key.
         If the bounds are not found, a KeyError is raised.
 
         Parameters
@@ -252,7 +252,8 @@ def infer_bounds(
     index = obj.to_index()
     interval = _infer_interval(index=index, closed=closed, label=label)
     data = np.stack(arrays=(interval.left, interval.right), axis=1)
-    if data.shape != obj.shape + (2,):
+    if data.shape != obj.shape + (2,):  # pragma: no cover
+        # TODO: (mike) this is hard to reproduce in tests...
         raise ValueError(
             f'Inferred bounds for {dim} have shape {data.shape}, '
             f'expected {obj.shape + (2,)}'
@@ -296,15 +297,15 @@ def _infer_interval(
     pd.IntervalIndex
         The interval index representing the bounds.
     """
-    # datetime indexes will be inferred from their frequency
     if is_datetime_index(index):
+        # datetime indexes will be inferred from their frequency
         try:
             interval = datetime_to_interval(
                 index=index, closed=closed, label=label
             )
         except ValueError:
             warnings.warn(
-                'failed to infer bounds from datetime index frequency.'
+                'Failed to infer bounds from datetime index frequency, '
                 'falling back to midpoint inference.'
             )
             # fallback to midpoint inference for irregular datetime indexes
@@ -360,7 +361,7 @@ def _midpoint_to_interval(
     index : pd.Index | np.ndarray
         The index of midpoints to infer bounds for.
     closed : Literal['left', 'right'], optional
-        Which side of bin interval is closed.
+        Which side of bin interval is closed. Defaults to 'left'.
 
     Returns
     -------
